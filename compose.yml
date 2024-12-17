@@ -1,12 +1,10 @@
-version: '3.7'
-
 services:
   api:
     build: .
     depends_on:
       db:
         condition: service_healthy
-    ports: 
+    ports:
       - "3000:3000"
     networks:
       - app_network
@@ -22,9 +20,9 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - app_network  
+      - app_network
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot"]
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot" ]
       interval: 10s
       timeout: 10s
       retries: 5
