@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   api:
-    build: .
+    image: italocarlo0604/aula-docker-ci-api:${DOCKER_IMAGE_TAG}
     depends_on:
       db:
         condition: service_healthy
