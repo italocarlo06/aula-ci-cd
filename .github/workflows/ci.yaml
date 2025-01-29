@@ -84,7 +84,7 @@ jobs:
               TAG=${{ needs.build.outputs.docker_tag }}
               # Create env file
               [ -e .env ] && rm .env
-              toch .env
+              touch .env
               echo  "DOCKER_IMAGE_TAG=$TAG" > .env
               
 
