@@ -12,6 +12,8 @@ jobs:
     build:
         name: 'Build and Push'
         runs-on: ${{ matrix.os }}
+        outputs:
+          docker_tag: ${{ steps.generate_tag.outputs.sha }}
 
         strategy:
             matrix:
@@ -70,6 +72,21 @@ jobs:
             password: ${{ secrets.PASSWORD }}
             source: "./docker-compose.yaml"
             target: "~/"
+
+        - name: Deploy on Digital Ocean via ssh 
+          uses: appleboy/ssh-action@v0.1.3
+          with:
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.USER }}
+            password: ${{ secrets.PASSWORD }}
+            script: |
+              # Extract the tag on job build
+              TAG=${{ needs.build.outputs.docker_tag }}
+              # Create env file
+              [ -e .env ] && rm .env
+              toch .env
+              echo  "DOCKER_IMAGE_TAG=$TAG" > .env
+              
 
         
 
