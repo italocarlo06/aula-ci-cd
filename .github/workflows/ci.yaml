@@ -86,6 +86,22 @@ jobs:
               [ -e .env ] && rm .env
               touch .env
               echo  "DOCKER_IMAGE_TAG=$TAG" > .env
+              # Login Docker
+              docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+              #Stop Containers
+              CONTAINERS=$(docker ps -q)
+              if [ -n "$CONTAINERS" ]; then
+                docker stop $CONTAINERS
+              else
+                echo " No running containers"
+              #Remove Old Containers
+              CONTAINERS=$(docker ps -a -q)
+              if [ -n "$CONTAINERS" ]; then
+                docker rm $CONTAINERS
+              else
+                echo " No containers to remove"
+              #Run a new container from a new image
+              docker-compose up -d --build
               
 
         
