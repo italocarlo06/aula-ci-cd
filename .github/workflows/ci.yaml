@@ -94,12 +94,14 @@ jobs:
                 docker stop $CONTAINERS
               else
                 echo " No running containers"
+              fi
               #Remove Old Containers
               CONTAINERS=$(docker ps -a -q)
               if [ -n "$CONTAINERS" ]; then
                 docker rm $CONTAINERS
               else
                 echo " No containers to remove"
+              fi
               #Run a new container from a new image
               docker-compose up -d --build
               
