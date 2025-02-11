@@ -2,12 +2,13 @@ version: '3.7'
 
 services:
   api:
-    image: italocarlo0604/aula-docker-ci-api:${DOCKER_IMAGE_TAG}
+    #image: italocarlo0604/aula-docker-ci-api:${DOCKER_IMAGE_TAG}
+    build: .
     depends_on:
       db:
         condition: service_healthy
-    ports: 
-      - "3000:3000"
+    ports:
+      - '3333:3333'
     networks:
       - app_network
   db:
@@ -20,15 +21,51 @@ services:
     volumes:
       - ./dbdata/mysql:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - '3306:3306'
     networks:
-      - app_network  
+      - app_network
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot"]
+      test: ['CMD-SHELL', 'mysqladmin ping -h localhost -u root -proot']
       interval: 10s
       timeout: 10s
       retries: 5
       start_period: 30s
+  mysql_exporter:
+    image: bitnami/mysqld-exporter:latest
+    container_name: mysql_exporter
+    restart: always
+    environment:
+      DATA_SOURCE_NAME: 'root:root@(db:3306)/'
+    command:
+      - '--mysqld.username=root:root'
+      - '--mysqld.address=db:3306'
+    depends_on:
+      - db
+    ports:
+      - '9104:9104'
+    networks:
+      - app_network
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app_network
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=auladevops@321
+    restart: unless-stopped
+    networks:
+      - app_network
 networks:
   app_network:
     driver: bridge
